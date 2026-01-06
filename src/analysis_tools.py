@@ -88,12 +88,12 @@ def analyse(arr, L, Ntherm=NTHERM, Nboot=NBOOT, ret_susc=False):
     mean_bs = np.mean(bootstrap(block(arr_, blocksize), Nboot), axis=1)
     error = np.std(mean_bs)
 
-    susc_mean = L**3 * (np.mean(arr_**2) - np.mean(arr_) ** 2)
+    susc_mean = 6 * L**3 * (np.mean(arr_**2) - np.mean(arr_) ** 2)
     samples = bootstrap(block(arr_, blocksize), Nboot)
 
     SUSCS = []
     for sample in samples:
-        SUSCS.append(L**3 * (np.mean(sample**2) - np.mean(sample) ** 2))
+        SUSCS.append(6 * L**3 * (np.mean(sample**2) - np.mean(sample) ** 2))
 
     susc_err = np.std(SUSCS)
 
