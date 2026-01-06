@@ -10,6 +10,21 @@ with no reweighting.
 """
 
 
+rule reweighting_plots:
+    input:
+        data=datafiles,
+        src="src/reweighting_plots.py",
+    output:
+        polyakov=analysis_plots + "reweighted_polyakov.pdf",
+        susceptibility=analysis_plots + "reweighted_susceptibility.pdf",
+        binder=analysis_plots + "reweighted_binder.pdf",
+    shell:
+        "python {input.src} "
+        "--polyakov_plot {output.polyakov} "
+        "--susceptibility_plot {output.susceptibility} "
+        "--binder_plot {output.binder} "
+
+
 rule analysis_plots:
     input:
         data=datafiles,
