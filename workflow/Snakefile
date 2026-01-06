@@ -1,0 +1,30 @@
+from glob import glob
+
+datafiles = glob("raw_data/**/data.txt", recursive=True)
+
+analysis_plots = "assets/plots/"
+"""
+Rule for fast analysis plots
+with no reweighting.
+
+"""
+
+
+rule analysis_plots:
+    input:
+        data=datafiles,
+        src="src/analysis_plots.py",
+    output:
+        polyakov=analysis_plots + "polyakov.pdf",
+        susceptibility=analysis_plots + "susceptibility.pdf",
+        binder=analysis_plots + "binder.pdf",
+    shell:
+        "python {input.src} "
+        "--polyakov_plot {output.polyakov} "
+        "--susceptibility_plot {output.susceptibility} "
+        "--binder_plot {output.binder} "
+
+
+rule clean:
+    shell:
+        "rm -rf assets/"
