@@ -1,0 +1,7 @@
+assets/
+
+raw_data/
+
+.snakemake/
+
+*~
