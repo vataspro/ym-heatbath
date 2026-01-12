@@ -80,7 +80,7 @@ def bootstrap(arr, size):
 
 
 def analyse(arr, L, Ntherm=NTHERM, Nboot=NBOOT, ret_susc=False):
-    arr_ = arr[Ntherm:]
+    arr_ = np.abs(arr[Ntherm:])
     mean = np.mean(arr_)
 
     tau, _ = ms_autocorr_time(arr_)
@@ -97,18 +97,20 @@ def analyse(arr, L, Ntherm=NTHERM, Nboot=NBOOT, ret_susc=False):
 
     susc_err = np.std(SUSCS)
 
-    binder_mean, binder_error = get_binder(block(arr_, int(np.ceil(tau))))
+    binder_mean, binder_error = get_binder(block(arr[Ntherm:], int(np.ceil(tau))))
 
     return mean, error, susc_mean, susc_err, binder_mean, binder_error, tau
 
 
 def get_binder(arr, ntherm=NTHERM):
-    mean = 1 - np.mean(arr**4) / (3.0 * np.mean(arr**2) ** 2)
 
-    bs_arr = bootstrap(arr, 200)
+    arr_ = arr - np.mean(arr)
+    mean = 1 - np.mean(arr_**4) / ( 3. * np.mean(arr_**2) ** 2)
+
+    bs_arr = bootstrap(arr_, 200)
 
     error = np.std(
-        1 - np.mean(bs_arr**4, axis=1) / (3.0 * np.mean(bs_arr**2, axis=1) ** 2)
+        1 - np.mean(bs_arr**4, axis=1) / (3. * np.mean(bs_arr**2, axis=1) ** 2)
     )
 
     return mean, error

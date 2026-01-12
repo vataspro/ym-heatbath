@@ -14,6 +14,7 @@ rule reweighting_plots:
     input:
         data=datafiles,
         src="src/reweighting_plots.py",
+        tools="src/analysis_tools.py"
     output:
         polyakov=analysis_plots + "reweighted_polyakov.pdf",
         susceptibility=analysis_plots + "reweighted_susceptibility.pdf",
@@ -25,10 +26,26 @@ rule reweighting_plots:
         "--binder_plot {output.binder} "
 
 
+rule plaquette:
+    input:
+        data=datafiles,
+        src="src/plaquette.py",
+    output:
+        polyakov=analysis_plots + "plaquette.pdf",
+        susceptibility=analysis_plots + "plaquette_susceptibility.pdf",
+        binder=analysis_plots + "plaquette_binder.pdf",
+    shell:
+        "python {input.src} "
+        "--plaquette_plot {output.polyakov} "
+        "--susceptibility_plot {output.susceptibility} "
+        "--binder_plot {output.binder} "
+
+
 rule analysis_plots:
     input:
         data=datafiles,
         src="src/analysis_plots.py",
+        tools="src/analysis_tools.py"
     output:
         polyakov=analysis_plots + "polyakov.pdf",
         susceptibility=analysis_plots + "susceptibility.pdf",

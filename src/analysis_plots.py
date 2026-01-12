@@ -48,7 +48,7 @@ if __name__ == "__main__":
     BIND_ERR = deepcopy(D_TEMPLATE)
 
     for f in files:
-        polyakov = np.abs(np.genfromtxt(f)[:, 1])
+        polyakov = np.genfromtxt(f)[:, 1]
 
         L, beta = id_from_fname(f)
         mean, error, susc_mean, susc_err, binder_mean, binder_error, tau = analyse(
