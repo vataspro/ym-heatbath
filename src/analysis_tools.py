@@ -69,7 +69,8 @@ def ms_autocorr_time(x, c=5.0):
 def block(arr, size):
     N = len(arr)
 
-    return np.array([arr[i : i + size].mean() for i in range(0, N, size)])
+    #return np.array([arr[i : i + size].mean() for i in range(0, N, size)])
+    return np.array(arr[::size])
 
 
 def bootstrap(arr, size):
@@ -79,7 +80,7 @@ def bootstrap(arr, size):
     return arr[k]
 
 
-def analyse(arr, L, Ntherm=NTHERM, Nboot=NBOOT, ret_susc=False):
+def analyse(arr, L, Ntherm=NTHERM, Nboot=NBOOT, bs_samples=False):
     arr_ = np.abs(arr[Ntherm:])
     mean = np.mean(arr_)
 
@@ -89,17 +90,21 @@ def analyse(arr, L, Ntherm=NTHERM, Nboot=NBOOT, ret_susc=False):
     error = np.std(mean_bs)
 
     susc_mean = 6 * L**3 * (np.mean(arr_**2) - np.mean(arr_) ** 2)
-    samples = bootstrap(block(arr_, blocksize), Nboot)
 
     SUSCS = []
+    samples = bootstrap(block(arr_, blocksize), Nboot)
     for sample in samples:
         SUSCS.append(6 * L**3 * (np.mean(sample**2) - np.mean(sample) ** 2))
 
     susc_err = np.std(SUSCS)
 
-    binder_mean, binder_error = get_binder(block(arr[Ntherm:], int(np.ceil(tau))))
+    binder_mean, binder_error = get_binder(block(arr[Ntherm:], blocksize))#int(np.ceil(tau))))
 
-    return mean, error, susc_mean, susc_err, binder_mean, binder_error, tau
+    if bs_samples:
+        samples = bootstrap(block(arr[Ntherm:], blocksize), Nboot)
+        return mean, error, susc_mean, susc_err, binder_mean, binder_error, tau, samples
+    else:
+        return mean, error, susc_mean, susc_err, binder_mean, binder_error, tau
 
 
 def get_binder(arr, ntherm=NTHERM):
