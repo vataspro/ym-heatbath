@@ -98,16 +98,23 @@ if __name__ == "__main__":
         q4 = mrw.reweight(obs, beta, n=4)
 
         mom2 = q2 - q**2
-        mom4 = q4 - 4*q3*q + 6*q2*q**2 - 3*q**4
+        mom4 = q4 - 4 * q3 * q + 6 * q2 * q**2 - 3 * q**4
 
         susc = 6 * L**3 * mom2
-        binder = 1 - q4 / (3.*q2**2)#mom4 / (3.*mom2 ** 2)#1 - q4 / (3. * q2**2)#mom4 / (mom2**2) # this is actually curtosis
+        binder = (
+            1 - q4 / (3.0 * q2**2)
+        )  # mom4 / (3.*mom2 ** 2)#1 - q4 / (3. * q2**2)#mom4 / (mom2**2) # this is actually curtosis
         MRW[L] = list(map(lambda x: deepcopy(x), [beta, q, susc, binder]))
 
     for i, OBS in enumerate(
         [(POL_VAL, POL_ERR), (SUSC_VAL, SUSC_ERR), (BIND_VAL, BIND_ERR)]
     ):
-        fig, ax = plt.subplots()
+        # Set figure sizes, big binder small other
+        if i == 2:
+            figsize = (7, 4.6)
+        else:
+            figsize = (3.4, 2.8)
+        fig, ax = plt.subplots(figsize=figsize, layout="constrained")
 
         for clr_idx, key in enumerate(OBS[0].keys()):
             # Analysis (points)
@@ -118,19 +125,33 @@ if __name__ == "__main__":
                 x.append(float(k))
                 y.append(OBS[0][key][k])
                 err.append(OBS[1][key][k])
-            ax.errorbar(x, y, err, ls="none", label=f"L = {key}", c=colours[clr_idx], marker=markers[clr_idx])
-            
+            ax.errorbar(
+                x,
+                y,
+                err,
+                ls="none",
+                label=f"$L = {key}$",
+                c=colours[clr_idx],
+                marker=markers[clr_idx],
+            )
 
             # Reweight
             ax.plot(MRW[key][0], MRW[key][i + 1], color=colours[clr_idx])
 
-        auto_handles, auto_labels = ax.get_legend_handles_labels()
+        # No legend for the susceptibility plot
+        if i != 1:
+            auto_handles, auto_labels = ax.get_legend_handles_labels()
 
-        legend_elements = [Line2D([0], [0], color="k", marker="o", label="data"),
-                           Line2D([0], [0], color="k", lw=0.5, label="reweight")]
+            legend_elements = [
+                Line2D([0], [0], color="k", marker="o", linestyle="None", label="Data"),
+                Line2D([0], [0], color="k", lw=0.5, label="Reweighted data"),
+            ]
 
-        ax.legend(handles=legend_elements + auto_handles)
+            ax.legend(handles=legend_elements + auto_handles)
+
         ax.set_ylabel(symbols[i])
         ax.set_xlabel(r"$\beta$")
+
+        ax.set_ylim(bottom=0)
 
         plt.savefig(output_files[i])
