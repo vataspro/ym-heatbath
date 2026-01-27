@@ -10,11 +10,27 @@ with no reweighting.
 """
 
 
+rule bootstrap_histograms:
+    input:
+        data=datafiles,
+        src="src/bootstrap.py",
+        tools="src/analysis_tools.py",
+    output:
+        polyakov=analysis_plots + "bootstrap_polyakov.pdf",
+        susceptibility=analysis_plots + "bootstrap_susceptibility.pdf",
+        binder=analysis_plots + "bootstrap_binder.pdf",
+    shell:
+        "python {input.src} "
+        "--polyakov_plot {output.polyakov} "
+        "--susceptibility_plot {output.susceptibility} "
+        "--binder_plot {output.binder} "
+
+
 rule reweighting_plots:
     input:
         data=datafiles,
         src="src/reweighting_plots.py",
-        tools="src/analysis_tools.py"
+        tools="src/analysis_tools.py",
     output:
         polyakov=analysis_plots + "reweighted_polyakov.pdf",
         susceptibility=analysis_plots + "reweighted_susceptibility.pdf",
@@ -45,7 +61,7 @@ rule analysis_plots:
     input:
         data=datafiles,
         src="src/analysis_plots.py",
-        tools="src/analysis_tools.py"
+        tools="src/analysis_tools.py",
     output:
         polyakov=analysis_plots + "polyakov.pdf",
         susceptibility=analysis_plots + "susceptibility.pdf",
