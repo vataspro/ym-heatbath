@@ -42,6 +42,16 @@ rule reweighting_plots:
         "--binder_plot {output.binder} "
 
 
+rule boostrap_rw:
+    input:
+        lambda wc: glob(f"raw_data/L{wc.L}/**/data.txt", recursive=True),
+    output:
+        "intermediary_data/reweights/L{L}.txt",
+    shell:
+        "python src/simple_rw.py "
+        "--files {input} > {output}"
+
+
 rule plaquette:
     input:
         data=datafiles,
