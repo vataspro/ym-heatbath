@@ -46,9 +46,9 @@ except:
 polyakov = np.abs(polyakov)
 
 # Define observables:
-polyakov_loop = observable("Polyakov Loop")
-polyakov_susceptibility = observable("Polyakov Susceptibility")
-polyakov_binder = observable("Polyakov Binder Cumulant")
+polyakov_loop = observable("PolyakovLoop")
+polyakov_susceptibility = observable("PolyakovSusceptibility")
+polyakov_binder = observable("PolyakovBinder")
 
 OBSERVABLE_LIST = [polyakov_loop, polyakov_susceptibility, polyakov_binder]
 
