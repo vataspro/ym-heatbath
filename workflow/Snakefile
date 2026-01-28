@@ -36,22 +36,6 @@ rule plots:
         "assets/plots/PolyakovBinder.pdf",
 
 
-rule bootstrap_histograms:
-    input:
-        data=datafiles,
-        src="src/bootstrap.py",
-        tools="src/analysis_tools.py",
-    output:
-        polyakov=analysis_plots + "bootstrap_polyakov.pdf",
-        susceptibility=analysis_plots + "bootstrap_susceptibility.pdf",
-        binder=analysis_plots + "bootstrap_binder.pdf",
-    shell:
-        "python {input.src} "
-        "--polyakov_plot {output.polyakov} "
-        "--susceptibility_plot {output.susceptibility} "
-        "--binder_plot {output.binder} "
-
-
 rule reweighting_plots:
     input:
         data=datafiles,
