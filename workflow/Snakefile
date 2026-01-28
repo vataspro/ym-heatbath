@@ -3,11 +3,37 @@ from glob import glob
 datafiles = glob("raw_data/**/data.txt", recursive=True)
 
 analysis_plots = "assets/plots/"
+
+all_datafiles = list(
+    map(
+        lambda s: s.replace("raw_data", "intermediary_data/analysis").replace(
+            "txt", "json"
+        ),
+        datafiles,
+    )
+)
+
+all_rw_files = list(
+    map(
+        lambda s: s.replace("raw_data", "intermediary_data/reweights") + ".txt",
+        glob("raw_data/L*"),
+    )
+)
+
+print(all_datafiles)
+
 """
 Rule for fast analysis plots
 with no reweighting.
 
 """
+
+
+rule plots:
+    input:
+        "assets/plots/PolyakovLoop.pdf",
+        "assets/plots/PolyakovSusceptibility.pdf",
+        "assets/plots/PolyakovBinder.pdf",
 
 
 rule bootstrap_histograms:
@@ -42,23 +68,40 @@ rule reweighting_plots:
         "--binder_plot {output.binder} "
 
 
+rule full_plots:
+    input:
+        script="src/plot_reweights.py",
+        rwfiles=all_rw_files,
+        datafiles=all_datafiles,
+    output:
+        "assets/plots/{observable}.pdf",
+    shell:
+        "python {input.script} "
+        "--rwfiles {input.rwfiles} "
+        "--datafiles {input.datafiles} "
+        "--observable {wildcards.observable} "
+        "--output {output}"
+
+
 rule quick_analysis:
     input:
         script="src/quick_analysis.py",
-        file=lambda wc : f"raw_data/L{wc.L}/B{wc.B}/data.txt"
-    output: "intermediary_data/analysis/L{L}/B{B}/data.json"
+        file=lambda wc: f"raw_data/L{wc.L}/B{wc.B}/data.txt",
+    output:
+        "intermediary_data/analysis/L{L}/B{B}/data.json",
     shell:
         "python {input.script} --file {input.file} --output {output}"
 
 
 rule boostrap_rw:
     input:
-        lambda wc: glob(f"raw_data/L{wc.L}/**/data.txt", recursive=True),
+        files=lambda wc: glob(f"raw_data/L{wc.L}/**/data.txt", recursive=True),
+        script="src/simple_rw.py",
     output:
         "intermediary_data/reweights/L{L}.txt",
     shell:
-        "python src/simple_rw.py "
-        "--files {input} > {output}"
+        "python {input.script} "
+        "--files {input.files} > {output}"
 
 
 rule plaquette:
