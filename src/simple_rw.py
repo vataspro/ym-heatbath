@@ -18,11 +18,10 @@ parser.add_argument("--files", nargs="+", required=True)
 args = parser.parse_args()
 
 files = [f for f in args.files if os.path.exists(f)]
-# files = glob("raw_data/L20/B*/data.txt")
 
 NTHERM = 0
 
-for bs_sample_num in range(10):
+for bs_sample_num in range(100):
     BETAS = []
     ACTIONS = []
     MEASUREMENTS = []
@@ -53,7 +52,11 @@ for bs_sample_num in range(10):
     b_target = np.linspace(np.min(BETAS), np.max(BETAS), 100)
 
     Oavr = mrw.reweight(MEASUREMENTS, beta=b_target)
-    rw_susc = V * (mrw.reweight(MEASUREMENTS, beta=b_target, n=2) - Oavr**2)
+    O2avr = mrw.reweight(MEASUREMENTS, beta=b_target, n=2) 
+    O4avr = mrw.reweight(MEASUREMENTS, beta=b_target, n=4) 
 
-    for b, oavr, osusc in zip(b_target, Oavr, rw_susc):
-        print(b, oavr, osusc)
+    rw_susc = V * (O2avr - Oavr**2)
+    binder = 1 - O4avr / (3.*O2avr**2)
+
+    for b, oavr, osusc, bind in zip(b_target, Oavr, rw_susc, binder):
+        print(b, oavr, osusc, bind)
