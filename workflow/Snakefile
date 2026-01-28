@@ -42,6 +42,15 @@ rule reweighting_plots:
         "--binder_plot {output.binder} "
 
 
+rule quick_analysis:
+    input:
+        script="src/quick_analysis.py",
+        file=lambda wc : f"raw_data/L{wc.L}/B{wc.B}/data.txt"
+    output: "intermediary_data/analysis/L{L}/B{B}/data.json"
+    shell:
+        "python {input.script} --file {input.file} --output {output}"
+
+
 rule boostrap_rw:
     input:
         lambda wc: glob(f"raw_data/L{wc.L}/**/data.txt", recursive=True),
