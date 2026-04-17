@@ -12,6 +12,7 @@ markers = ["o", "s", "^", "*"]
 symbols = {
     "PolyakovLoop": r"$|\Phi|$",
     "PolyakovSusceptibility": r"$\chi_\Phi$",
+    "PolyakovSusceptibility_V": r"$\chi_\Phi / V$",
     "PolyakovBinder": r"$B_4^\Phi$",
 }
 
@@ -24,10 +25,24 @@ parser.add_argument("--datafiles", nargs="+", required=True)
 parser.add_argument(
     "--observable",
     required=True,
-    choices=["PolyakovLoop", "PolyakovSusceptibility", "PolyakovBinder"],
+    choices=[
+        "PolyakovLoop",
+        "PolyakovSusceptibility",
+        "PolyakovSusceptibility_V",
+        "PolyakovBinder",
+    ],
 )
 parser.add_argument("--output", required=True)
 args = parser.parse_args()
+
+
+# If normalising by volume
+if args.observable[-2:] == "_V":
+    observable = args.observable[:-2]
+    volume_normalisation_flag = True
+else:
+    observable = args.observable
+    volume_normalisation_flag = False
 
 
 if True:  # args.observable == "PolyakovSusceptibility":
@@ -45,17 +60,23 @@ for i, f in enumerate(sorted(rwfiles)):
     MEAN = []
     ERROR = []
 
-    if args.observable == "PolyakovLoop":
+    if observable == "PolyakovLoop":
         obs = polyakov
-    elif args.observable == "PolyakovSusceptibility":
+    elif observable == "PolyakovSusceptibility":
         obs = susc
-    elif args.observable == "PolyakovBinder":
+    elif observable == "PolyakovBinder":
         obs = binder
     for b in np.unique(beta):
         B.append(b)
         idx = np.where(beta == b)
-        MEAN.append(np.mean(obs[idx]))
-        ERROR.append(np.std(obs[idx]))
+
+        obs_array = obs[idx]
+
+        if volume_normalisation_flag:
+            V = int(os.path.basename(f)[1:-4]) ** 3
+            obs_array /= V
+        MEAN.append(np.mean(obs_array))
+        ERROR.append(np.std(obs_array))
 
     mean = np.array(MEAN)
     err = np.array(ERROR)
@@ -86,7 +107,7 @@ for dataf in datafiles:
     with open(dataf, "r") as f:
         datum = json.load(f)
 
-    data[L][beta] = datum[args.observable]
+    data[L][beta] = datum[observable]
 
 for i, L in enumerate(sorted(Ls)):
     idx = np.argsort(list(data[L].keys()))
@@ -97,6 +118,10 @@ for i, L in enumerate(sorted(Ls)):
     for b in betas:
         values.append(data[L][b]["value"])
         errors.append(data[L][b]["error"])
+
+    if volume_normalisation_flag:
+        values = np.array(values) / int(L) ** 3
+        errors = np.array(errors) / int(L) ** 3
 
     ax.errorbar(
         betas,
