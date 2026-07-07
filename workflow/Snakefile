@@ -9,6 +9,29 @@ with no reweighting.
 
 """
 
+T, L, beta = glob_wildcards("raw_data/T{T}/L{L}/beta{beta}/data.txt")
+
+rule all_histograms:
+    input:
+        expand("assets/histograms/T{T}_L{L}_beta{beta}_action.pdf",
+                zip, T=T, L=L, beta=beta)
+
+
+rule get_histogram:
+    input:
+        script="src/hist.py",
+        data="raw_data/T{T}/L{L}/beta{beta}/data.txt"
+    output:
+        action_hist="assets/histograms/T{T}_L{L}_beta{beta}_action.pdf",
+        polyakov_hist="assets/histograms/T{T}_L{L}_beta{beta}_polyakov.pdf"
+    shell:
+        "python {input.script} "
+        "--input {input.data} "
+        "--output_action {output.action_hist} "
+        "--output_polyakov {output.polyakov_hist} "
+        "--L {wildcards.L} "
+        "--T {wildcards.T} "       
+        
 
 rule bootstrap_histograms:
     input:

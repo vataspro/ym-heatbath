@@ -11,14 +11,15 @@ BINSIZE = 2  # Skip BINSIZE*ceil(tau_int) measuremet for autocorrelation
 
 # Get L, beta from the file name
 def id_from_fname(fname):
-    match = re.search(r"/L(\d+)/B(\d).(\d+)/", fname)
+    match = re.search(r"/T(\d+)/L(\d+)/beta(\d).(\d+)/", fname)
     if match:
-        L = int(match.group(1))
-        beta = float(match.group(2)) + float(match.group(3)) * 10 ** (
-            -len(match.group(3))
+        T = int(match.group(1))
+        L = int(match.group(2))
+        beta = float(match.group(3)) + float(match.group(4)) * 10 ** (
+            -len(match.group(4))
         )
 
-    return L, beta
+    return T, L, beta
 
 
 def ms_autocorr_time(x, c=5.0):
@@ -80,7 +81,7 @@ def bootstrap(arr, size):
     return arr[k]
 
 
-def analyse(arr, L, Ntherm=NTHERM, Nboot=NBOOT, bs_samples=False):
+def analyse(arr, L, T, Ntherm=NTHERM, Nboot=NBOOT, bs_samples=False):
     arr_ = np.abs(arr[Ntherm:])
     mean = np.mean(arr_)
 
@@ -89,12 +90,12 @@ def analyse(arr, L, Ntherm=NTHERM, Nboot=NBOOT, bs_samples=False):
     mean_bs = np.mean(bootstrap(block(arr_, blocksize), Nboot), axis=1)
     error = np.std(mean_bs)
 
-    susc_mean = 6 * L**3 * (np.mean(arr_**2) - np.mean(arr_) ** 2)
+    susc_mean = T * L**3 * (np.mean(arr_**2) - np.mean(arr_) ** 2)
 
     SUSCS = []
     samples = bootstrap(block(arr_, blocksize), Nboot)
     for sample in samples:
-        SUSCS.append(6 * L**3 * (np.mean(sample**2) - np.mean(sample) ** 2))
+        SUSCS.append(T * L**3 * (np.mean(sample**2) - np.mean(sample) ** 2))
 
     susc_err = np.std(SUSCS)
 

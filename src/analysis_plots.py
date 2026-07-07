@@ -19,7 +19,7 @@ from glob import glob
 from analysis_tools import id_from_fname, analyse
 
 # Template input data: raw_data/L20/B7.6125/data.txt
-D_TEMPLATE = {20: {}, 24: {}, 28: {}, 32: {}}
+D_TEMPLATE = {24: {}, 30: {}, 36:{}, 42:{}, 48:{}}#{20: {}, 24: {}, 28: {}, 32: {}}
 
 # Command line arguments
 parser = ArgumentParser()
@@ -50,9 +50,9 @@ if __name__ == "__main__":
     for f in files:
         polyakov = np.genfromtxt(f)[:, 1]
 
-        L, beta = id_from_fname(f)
+        T, L, beta = id_from_fname(f)
         mean, error, susc_mean, susc_err, binder_mean, binder_error, tau = analyse(
-            polyakov, L
+            polyakov, L, T
         )
 
         POL_VAL[L][beta] = mean

@@ -23,8 +23,8 @@ from matplotlib.lines import Line2D
 from pyRw.mrw import MultiRw
 
 # Template input data: raw_data/L20/B7.6125/data.txt
-D_TEMPLATE = {20: {}, 24: {}, 28: {}, 32: {}}
-L_TEMPLATE = {20: [], 24: [], 28: [], 32: []}
+D_TEMPLATE = {24:{}, 30:{}, 36:{}, 42:{}, 48:{}}#{20: {}, 24: {}, 28: {}, 32: {}}
+L_TEMPLATE = {24:[], 30:[], 36:[], 42:[], 48:[]}#{20: [], 24: [], 28: [], 32: []}
 
 # Command line arguments
 parser = ArgumentParser()
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     plt.style.use("styles/paperdraft.mplstyle")
     colours = list(TABLEAU_COLORS)
 
-    markers = ["o", "s", "^", "*"]
+    markers = ["o", "s", "^", "*", "+"]
 
     # Input data files
     files = glob("raw_data/**/data.txt", recursive=True)
@@ -62,14 +62,14 @@ if __name__ == "__main__":
     BETA = deepcopy(L_TEMPLATE)
 
     for f in files:
-        L, beta = id_from_fname(f)
+        T, L, beta = id_from_fname(f)
         plaquette, polyakov = np.genfromtxt(f)[NTHERM:].T
 
         polyakov = polyakov
-        action = (6 * L**3) * 6 * (1 - plaquette)
+        action = (T * L**3) * 6 * (1 - plaquette)
 
         mean, error, susc_mean, susc_err, binder_mean, binder_error, tau = analyse(
-            polyakov, L
+            polyakov, L, T
         )
 
         POL_VAL[L][beta] = mean
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         BETA[L].append(beta)
 
     MRW = {}
-    for L in [20, 24, 28, 32]:
+    for L in [24, 30, 36, 42, 48]:#[20, 24, 28, 32]:
         mrw = MultiRw(BETA[L], ACTION[L], autocorr=True, verbose=True)
 
         beta = np.linspace(np.min(BETA[L]), np.max(BETA[L]), 200)
