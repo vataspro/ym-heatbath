@@ -100,7 +100,7 @@ if __name__ == "__main__":
         mom2 = q2 - q**2
         mom4 = q4 - 4 * q3 * q + 6 * q2 * q**2 - 3 * q**4
 
-        susc = 6 * L**3 * mom2
+        susc = T * L**3 * mom2
         binder = (
             1 - q4 / (3.0 * q2**2)
         )  # mom4 / (3.*mom2 ** 2)#1 - q4 / (3. * q2**2)#mom4 / (mom2**2) # this is actually curtosis
